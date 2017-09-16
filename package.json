@@ -1,0 +1,23 @@
+{
+  "name": "express.js-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kianev/Express.js-App.git"
+  },
+  "author": "Kaloian",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kianev/Express.js-App/issues"
+  },
+  "homepage": "https://github.com/kianev/Express.js-App#readme",
+  "dependencies": {
+    "express": "^4.15.4",
+    "pug": "^2.0.0-rc.4"
+  }
+}
