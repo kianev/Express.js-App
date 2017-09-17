@@ -2,39 +2,60 @@ const express = require('express')
 const port = 1234
 const path = require('path')
 const pug = require('pug')
+const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
+
+mongoose.connect('mongodb://localhost/nodekb')
+let db = mongoose.connection
+
+//check connection
+db.once('open', () => {
+  console.log('Connected to MongoDB')
+})
+
+//check for DB Errors
+db.on('error', (err) => {
+  console.log(err)
+})
 
 //init app
 const app = express()
+
+//Bring the models
+let Article = require('./models/article')
 
 //load view engine
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'pug')
 
+// body parser middleware
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+
+//set public folder
+app.use(express.static(path.join(__dirname, 'public')))
+
+
 //home rout
 app.get('/', (req, res) => {
-  let articles = [
-    {
-      id: 1,
-      title: 'Article1',
-      author: 'John',
-      body: 'This is Article One'
-    },
-    {
-      id: 2,
-      title: 'Article2',
-      author: 'Pesho',
-      body: 'This is Article Two'
-    },
-    {
-      id: 3,
-      title: 'Article3',
-      author: 'Gosho',
-      body: 'This is Article Three'
+  Article.find({}, (err, articles)=> {
+    if(err) {
+      console.log(err)
+    }else {
+      res.render('index', {
+        title: 'Articles',
+        articles: articles
+      })
     }
-  ]
-  res.render('index', {
-    title: 'Articles',
-    articles: articles
+  })
+})
+
+//get single article
+app.get('/article/:id', (req, res) => {
+  Article.findById(req.params.id, (err, article) => {
+    res.render('article', {
+      article: article
+    })
   })
 })
 
@@ -42,6 +63,22 @@ app.get('/', (req, res) => {
 app.get('/articles/add', (req, res) => {
   res.render('add_article', {
     title: 'Add Article'
+  })
+})
+
+//add sumbit post route
+app.post('/articles/add', (req, res) => {
+  let article = new Article()
+  article.title = req.body.title
+  article.author = req.body.author
+  article.body = req.body.body
+
+  article.save((err) => {
+    if(err) {
+      console.log(err)
+    }else {
+      res.redirect('/')
+    }
   })
 })
 
